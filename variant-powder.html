@@ -227,7 +227,9 @@ document.getElementById('cta').textContent = hero.cta;
 /* ---------- Form ---------- */
 // To collect emails: create a free form at Formspree, Tally or Google Forms
 // and paste its POST URL here. Never paste secret keys into this file.
-const FORM_ENDPOINT = ""; // e.g. "https://formspree.io/f/xxxxxxx"
+const FORM_ENDPOINT = "https://taodxvqcgszqkqhtwkqt.supabase.co/rest/v1/glow_waitlist";
+// Public "publishable" key: safe in a web page. The table only lets visitors add a row, never read.
+const FORM_KEY = "sb_publishable_SNlKMdDrBWUFlBIcpXQneA_4xlJ1x8k";
 
 const params = new URLSearchParams(location.search);
 const utm = {utm_source: params.get('utm_source')||'', utm_campaign: params.get('utm_campaign')||'', variant: VARIANT};
@@ -242,7 +244,7 @@ document.getElementById('form').addEventListener('submit', async (e) => {
   err.textContent = '';
   const data = {email: email.value.trim(), why: document.getElementById('why').value, price_clicked: priceClicked, ...utm};
   if (FORM_ENDPOINT) {
-    try { await fetch(FORM_ENDPOINT, {method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body: JSON.stringify(data)}); }
+    try { const r = await fetch(FORM_ENDPOINT, {method:'POST', headers:{'Content-Type':'application/json','apikey':FORM_KEY,'Prefer':'return=minimal'}, body: JSON.stringify({...data, why: data.why || null})}); if (!r.ok && r.status !== 409) { err.textContent = 'Something went wrong. Please try again in a moment.'; return; } }
     catch (_) { /* still thank them; check the form service dashboard */ }
   } else { console.log('Waitlist signup (no FORM_ENDPOINT yet):', data); }
   document.getElementById('form').hidden = true;
