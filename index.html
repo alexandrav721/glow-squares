@@ -247,6 +247,7 @@ footer .honest{font:400 italic 20px/1.35 var(--display);color:var(--linen);margi
         <label class="f" for="idea">Optional: write a note for Volume 2 (140 characters). The best ones get printed under a square.</label>
         <textarea id="idea" maxlength="140" placeholder="The dishes have survived worse."></textarea>
         <label class="check"><input type="checkbox" id="daily"> Send me tonight's note by email until pre-orders open.</label>
+        <label class="check"><input type="checkbox" id="sours"> Also tell me about a sour gummy version we're working on (2 squares a day, sealed packets).</label>
         <button class="btn" type="submit" style="justify-self:start">Save my founder box</button>
         <p class="fine-line">By sending a note, you let us print it with your first name; we'll ask you before we do. One email when pre-orders open, plus anything you ticked. Unsubscribe anytime.</p>
         <p class="err" id="err" role="alert"></p>
@@ -339,11 +340,13 @@ document.getElementById('form').addEventListener('submit', async e => {
   e.preventDefault();
   const v = document.getElementById('email').value.trim(), err = document.getElementById('err');
   if (!okEmail(v)) { err.textContent = 'Please enter a valid email so we can reach you.'; return; }
-  const note = document.getElementById('idea').value.trim(), daily = document.getElementById('daily').checked;
-  try { await save({email:v, why: document.getElementById('why').value || null, note_idea: note || null, wants_daily_note: daily}); }
+  const note = document.getElementById('idea').value.trim(), daily = document.getElementById('daily').checked, sours = document.getElementById('sours').checked;
+  const pick = document.getElementById('why').value;
+  const why = [pick, sours ? 'sours:yes' : ''].filter(Boolean).join(' | ') || null;
+  try { await save({variant:'v3-book', email:v, why, note_idea: note || null, wants_daily_note: daily}); }
   catch(_) { err.textContent = 'Something went wrong. Please try again in a moment.'; return; }
   snap(); document.getElementById('form').hidden = true; document.getElementById('thanks').hidden = false;
-  document.getElementById('thanksText').textContent = 'We’ll email you first on January 11 with your $39 link.' + (note ? ' Your note is in the pile for Volume 2.' : '') + (daily ? ' You’re on the list for the nightly notes.' : '');
+  document.getElementById('thanksText').textContent = 'We’ll email you first on January 11 with your $39 link.' + (note ? ' Your note is in the pile for Volume 2.' : '') + (daily ? ' You’re on the list for the nightly notes.' : '') + (sours ? ' We’ll tell you about the sour version too.' : '');
 });
 </script>
 </body>
